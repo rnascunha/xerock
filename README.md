@@ -1,4 +1,4 @@
-#Xerock
+# Xerock
 
 **Xerock** is a set o tools (Linux and Windows) to assist the development of low level communication between devices. The plataform aims different kinds of connections, since physical connection (e.g. serial) to network protocols (e.g. TCP, WebSocket).
 
@@ -8,19 +8,19 @@ The *daemon* is where the connections/protocols will be running, and at the *int
 
 The software is composed by:
 
-* _Apps_ : applications provide the resources that the system will work on top. For example, the *Serial App* connects to serial ports, *TCP Server App* open listening tcp sockets, and so on.
+* *Apps*: applications provide the resources that the system will work on top. For example, the *Serial App* connects to serial ports, *TCP Server App* open listening tcp sockets, and so on.
 
-* _Data_ / _Views_ : this module is all about visualization. The default view shows all data, from all the *apps*, from all *daemons*, and all metadata involved (timestamp, app, size, data...). There is also custom views, where data can be filterd, parsed and displayed in different ways.
+* *Data* / *Views*: this module is all about visualization. The default view shows all data, from all the *apps*, from all *daemons*, and all metadata involved (timestamp, app, size, data...). There is also custom views, where data can be filterd, parsed and displayed in different ways.
 
-* _Input_ / _Commands_ : here is how you send data to the *apps*. You can send data as **text**, **hexadecimal** or **binary**. Custom inputs, called *commads*, can be used to construct more complex data sets.
+* *Input* / *Commands*: here is how you send data to the *apps*. You can send data as **text**, **hexadecimal** or **binary**. Custom inputs, called *commads*, can be used to construct more complex data sets.
 
-* _Scripts_ : scripts are used to automated some procedure. For example, echoing all data received from some socket, or bridging data received from a serial port to a TCP socket, or vice-versa.
+* *Scripts*: scripts are used to automated some procedure. For example, echoing all data received from some socket, or bridging data received from a serial port to a TCP socket, or vice-versa.
 
-* _Tools_ : tools are features to help develoment, but not tightly related with others. Some examples are data conversion or open saved data.
+* *Tools*: tools are features to help develoment, but not tightly related with others. Some examples are data conversion or open saved data.
 
 All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scripts* and *Tools* will be added in the future.
 
-##How it works
+## How it works
 
 ![xerock schematic](docs/img/xerock_diagram.png) 
 
@@ -34,9 +34,9 @@ All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scri
 
 Other possibility, that does't require a *daemon* , is the **local apps** . **Local apps** are applications that use some API supplied by the browser. As everything runs locally, the data isn't shared, but all features described above ( _Viwes_ ,  _Commands_ ,  _Scripts_ ) are still valid.
 
-##Build and compile
+## Build and compile
 
-###Dependecies
+### Dependecies
 
 To build and compile **Xerock**, you will need:
 
@@ -58,11 +58,11 @@ To build and compile **Xerock**, you will need:
 
 * (Optional) [OpenSSL](https://www.openssl.org/) - SSL implementation. Only required if SSL support is needed.
 
-###Quick start
+### Quick start
 
 By default, everything will be compiled without SSL support, and all applications supported by the plataform enabled. Complete build options can inspected [here](#build-options).
 
-####Linux
+#### Linux
 
 Download and install all build tools required.
 
@@ -111,7 +111,7 @@ $ cmake ..
 $ make
 ```
 
-####Windows
+#### Windows
 
 Download and install all build tools required.
 
@@ -149,7 +149,7 @@ Build and compile:
 > cmake --build .
 ```
 
-###Running
+### Running
 
 > :warning: At Windows, substitute **./xerock** with **xerock.exe**
 
@@ -200,7 +200,7 @@ Options:
 		Prints version infomartion
 ```
 
-###Build options
+### Build options
 
 Below are all the build options avaliable:
 
@@ -244,7 +244,7 @@ A overview of the options:
 
 * `-DCONFIG_KEEPALIVE_OLD=<0|1>`: this just for Windows OS (ignored at Linux). It will force the use of a specific implementation of the socket keepalive (here called *old* and *new*). By default MSVC will use the *new* (`0`) implementation, otherwise will use the *old* (`1`). If you have any problem compiling at Windows with **TCP_KEEP**-like errors, change the behavior setting this flag (and let me know, please).
 
-####Build tests
+#### Build tests
 
 OS | Compiler Version
 ---|------------------
@@ -257,11 +257,11 @@ Debian 10|gcc 8.3.0
 > :warning: This build was tested at Windows and Linux system. But not exhaustly tested. Any errors at your plataform, just let me know.
  
 
-##Applications
+## Applications
 
 _Apps_  are the real deal. They are the ones that provide the resources to explore. **Xerock** was developed considering that new  _apps_  will be added in the future (propably at need of the author). Stay tuned! By now, this is what we have.
 
-###Main
+### Main
 
 This is a internal *app*, mandatory and can't be disabled at build. It will notify the interface:
 
@@ -271,7 +271,7 @@ This is a internal *app*, mandatory and can't be disabled at build. It will noti
 
 * Number of users connected to the  _daemon_ .
 
-###Echo
+### Echo
 
 Build options: `-DAPP_ECHO=1`.
 
@@ -283,7 +283,7 @@ Build options: `-DAPP_ECHO=1`.
 
 * Give some context to the shared data (if you or someonelse analyze later).
 
-###Serial
+### Serial
 
 Build options: `-DAPP_SERIAL=1`.
 
@@ -295,11 +295,11 @@ Baudrate|unsigned interger
 Byte size | 5/6/7/8(default)
 Parity| none(default)/odd/even;
 Stopbit| 1(default)/1.5/2
-Flow control| hardoware/software;
+Flow control| hardware/software;
 
 The application doesn't scan the ports continuously (except opened ports). So if you insert/remove a serial device, you need send a rescan command (*Update* button at interface).
 
-###Monitor
+### Monitor
 
 Build: `-DAPP_MONITOR=1` (only supported at Linux).
 
@@ -318,8 +318,7 @@ uptime|Uptime of process
 
 All data readed directly from the */proc* directory.
 
-
-###TCP Server  
+### TCP Server  
 
 Build options: `-DAPP_TCP_SERVER=<op>`, where:
 
@@ -334,7 +333,7 @@ Build options: `-DAPP_TCP_SERVER=<op>`, where:
 
 When opening, you can also enable keepalive (SO_KEEPALIVE) socket option.
 
-####Keep alive
+#### Keep alive
 
 Keep alive is a set of timers that will check if the TCP connection is still valid. The parameters are:
 
@@ -353,7 +352,7 @@ At Windows, there are some limitations depending on implementation or Windows ve
 
 [More about keepalive](https://tldp.org/HOWTO/TCP-Keepalive-HOWTO/overview.html).
 
-##Troubleshoot
+## Troubleshoot
 
 * If you try to build with flag `-DAPP_MONITOR=1` at Windows it will fail. *Monitor App* is not supported at Windows (yet?). Just don't explicity use this flag at Window and the build will just ignore it.
 
