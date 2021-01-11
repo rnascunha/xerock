@@ -1,0 +1,7 @@
+build/
+out/
+.vs/
+CMakeSettings.json
+.settings/
+.project
+.cproject

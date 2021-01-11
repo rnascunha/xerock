@@ -1,0 +1,42 @@
+#ifndef SERIAL_APP_JSON_DEFINES_HPP__
+#define SERIAL_APP_JSON_DEFINES_HPP__
+
+//Serial
+#define SERIAL_CONFIG_PORT			"port"
+#define SERIAL_CONFIG_BAUDRATE		"baudrate"
+#define SERIAL_CONFIG_CHAR_SIZE		"char_size"
+#define SERIAL_CONFIG_PARITY		"parity"
+#define SERIAL_CONFIG_STOPBIT		"stopbit"
+#define SERIAL_CONFIG_FLOWCONTROL	"flow_control"
+#define SERIAL_CONFIG_FC_START		"fc_start"
+#define SERIAL_CONFIG_FC_STOP		"fc_stop"
+
+//#define SERIAL_CONFIG_PARITY_NONE	"none"
+//#define SERIAL_CONFIG_PARITY_ODD	"odd"
+//#define SERIAL_CONFIG_PARITY_EVEN	"even"
+//#define SERIAL_CONFIG_PARITY_MARK	"mark"
+//#define SERIAL_CONFIG_PARITY_SPACE	"space"
+#define SERIAL_CONFIG_PARITY_NONE	0
+#define SERIAL_CONFIG_PARITY_ODD	1
+#define SERIAL_CONFIG_PARITY_EVEN	2
+#define SERIAL_CONFIG_PARITY_MARK	3
+#define SERIAL_CONFIG_PARITY_SPACE	4
+
+//#define SERIAL_CONFIG_FC_NONE		"none"
+//#define SERIAL_CONFIG_FC_SW			"sw"
+//#define SERIAL_CONFIG_FC_HW			"hw"
+//#define SERIAL_CONFIG_FC_SW_HW		"hw_sw"
+#define SERIAL_CONFIG_FC_NONE		0
+#define SERIAL_CONFIG_FC_SW			1
+#define SERIAL_CONFIG_FC_HW			2
+#define SERIAL_CONFIG_FC_SW_HW		3
+
+#define SERIAL_CLOSE_PORT			"port"
+
+#define SERIAL_DATA_PORT			"port"
+#define SERIAL_DATA_DATA			"data"
+
+#define SERIAL_STATUS_OPENED		"open"
+#define SERIAL_STATUS_CONFIG		"config"
+
+#endif /* SERIAL_APP_JSON_DEFINES_HPP__ */

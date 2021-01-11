@@ -1,0 +1,8 @@
+#ifndef SERIAL_WEBSOCKET_VERSION_HPP__
+#define SERIAL_WEBSOCKET_VERSION_HPP__
+
+#define VERSION			"0.1"
+#define AUTHOR			"Rafael Cunha"
+#define COPYRIGHT_YEAR	"2021"
+
+#endif /* SERIAL_WEBSOCKET_VERSION_HPP__ */
