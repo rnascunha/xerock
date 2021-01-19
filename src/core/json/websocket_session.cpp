@@ -2,8 +2,6 @@
 
 #include <memory>
 
-#include "util/json_helper.hpp"
-
 #include "core/app.hpp"
 #include "core/helpers.hpp"
 #include "core/error.hpp"
@@ -13,7 +11,8 @@
 #include "../../apps/main/make.hpp"
 #include "../../apps/main/parser.hpp"
 
-#include <iostream>
+//#include "util/json_helper.hpp"
+//#include <iostream>
 
 namespace Core{
 
@@ -78,7 +77,7 @@ void on_message(std::shared_ptr<Propagator> ws,
 		fail_message(ws, Message::App::main, make_error_code(Message_Errc::ILL_FORMED));
 		return;
 	}
-	Util::print_json(d);
+//	Util::print_json(d);
 
 	if(!Dispatcher::exec(main.app, ws, main, d))
 	{

@@ -25,11 +25,18 @@
 #include "my_async/websocket/session_static_callback.hpp"
 #include "my_async/websocket/session_static_callback_static_share.hpp"
 
-//TCP
+//TCP server
 #include "my_async/tcp_server/session_base.hpp"
 //TCP final classes
 #include "my_async/tcp_server/session_share_static_callback.hpp"
 #include "my_async/tcp_server/session_static_share_static_callback.hpp"
 #include "my_async/tcp_server/session_static_callback.hpp"
+
+//TCP client
+#include "my_async/tcp_client/client_base.hpp"
+#include "my_async/tcp_client/client_callback.hpp"
+#include "my_async/tcp_client/client_static_callback.hpp"
+#include "my_async/tcp_client/simple_container.hpp"
+#include "my_async/tcp_client/container.hpp"
 
 #endif /* MY_ASYNC_BASE_HPP__ */

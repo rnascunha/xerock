@@ -5,7 +5,8 @@ function(print_vars)
 	message("USE_SSL: " ${USE_SSL})
 	message("USE_APP_ECHO: " ${USE_APP_ECHO})
 	message("USE_APP_MONITOR: " ${USE_APP_MONITOR})
-	message("USE_APP_TCP_SERVER: " ${USE_APP_TCP_SERVER}) 
+	message("USE_APP_TCP_SERVER: " ${USE_APP_TCP_SERVER})
+	message("USE_APP_TCP_CLIENT: " ${USE_APP_TCP_CLIENT}) 
 	message("BOOST_ROOT: " ${BOOST_ROOT})
 	message("RAPIDJSON_ROOT: " ${RAPIDJSON_ROOT})
 	message("ARGH_ROOT: " ${ARGH_ROOT})
@@ -29,6 +30,7 @@ set(USE_APP_MONITOR 	1)
 #2 - enble ssl
 #3 - enable plain & ssl
 set(USE_APP_TCP_SERVER 	1)
+set(USE_APP_TCP_CLIENT 	1)
 
 set(BOOST_ROOT 			third/boost)
 set(RAPIDJSON_ROOT 		third/rapidjson/include)
@@ -76,6 +78,18 @@ if(DEFINED APP_TCP_SERVER)
 		message(FATAL_ERROR "TCP Server with support to SSL, must enable SSL globally (-DWITH_SSL=1).")
 	endif()
 	unset(APP_TCP_SERVER CACHE)
+endif()
+
+if(DEFINED APP_TCP_CLIENT)
+	if(${APP_TCP_CLIENT} GREATER_EQUAL 0 AND ${APP_TCP_CLIENT} LESS_EQUAL 3)
+		set(USE_APP_TCP_CLIENT ${APP_TCP_CLIENT})
+	else()
+		message(FATAL_ERROR "-DAPP_TCP_CLIENT must be a value >= 0 OR <= 3")
+	endif()
+	if(${USE_APP_TCP_CLIENT} GREATER_EQUAL 2 AND NOT ${USE_SSL} EQUAL 1)
+		message(FATAL_ERROR "TCP Client with support to SSL, must enable SSL globally (-DWITH_SSL=1).")
+	endif()
+	unset(APP_TCP_CLIENT CACHE)
 endif()
 
 if(DEFINED BOOST_PATH)
@@ -175,6 +189,7 @@ add_definitions(-DBOOST_SYSTEM_USE_UTF8		#Make windows error output UTF8 / Ignor
 				-DUSE_APP_SERIAL=${USE_APP_SERIAL}
 				-DUSE_APP_MONITOR=${USE_APP_MONITOR}
 				-DUSE_APP_TCP_SERVER=${USE_APP_TCP_SERVER}
+				-DUSE_APP_TCP_CLIENT=${USE_APP_TCP_CLIENT}
 				-DUSE_SSL=${USE_SSL}
 				-DKEEPALIVE_OLD=${KEEPALIVE_OLD})
 
@@ -239,6 +254,10 @@ if(${USE_APP_TCP_SERVER} GREATER 0)
 	message("Enable App TCP Server " ${USE_APP_TCP_SERVER})
 	add_subdirectory(${APPS_DIR}/tcp_server)
 endif()
+if(${USE_APP_TCP_CLIENT} GREATER 0)
+	message("Enable App TCP Client " ${USE_APP_TCP_CLIENT})
+	add_subdirectory(${APPS_DIR}/tcp_client)
+endif()
 
 message("Adding Core")
 add_subdirectory(${SRC_DIR}/core)
@@ -283,6 +302,9 @@ if(${USE_APP_MONITOR} EQUAL 1)
 endif()
 if(${USE_APP_TCP_SERVER} GREATER 0)
 	target_link_libraries(${PROJECT_NAME} tcp_server_app)
+endif()
+if(${USE_APP_TCP_CLIENT} GREATER 0)
+	target_link_libraries(${PROJECT_NAME} tcp_client_app)
 endif()
 
 if(WIN32)
