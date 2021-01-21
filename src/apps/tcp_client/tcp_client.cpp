@@ -10,6 +10,8 @@
 
 #include "my_async.hpp"
 
+//#include <iostream>
+
 namespace Apps{
 namespace TCP_Client{
 
@@ -102,8 +104,6 @@ static void message_close(std::shared_ptr<Core::Propagator> ws,
 		Core::fail_message(ws, Message::App::tcp_client, ec);
 		return;
 	}
-
-	//message_status(client);
 }
 
 template<typename Client>
@@ -112,18 +112,17 @@ static void init_client(Client client,
 		std::shared_ptr<TCP_Container> clients)
 {
 	client->send_status = [clients](){ message_status(clients); };
-	auto const& l = client->local;
-	client->close_cb = [clients, l](){
+	client->close_cb = [clients, client]()
+	{
 		boost::system::error_code ec;
-		clients->close(l, ec);
+		clients->close(client->local, ec);
 	};
 
-	if(data.options.keep_alive)
-	{
-		client->keep_alive(data.options.idle,
-				data.options.count,
-				data.options.interval);
-	}
+	client->keep_alive(data.options.idle,
+			data.options.count,
+			data.options.interval,
+			data.options.keep_alive);
+	message_status(clients);
 }
 
 static void message_open(std::shared_ptr<Core::Propagator> ws,
@@ -143,7 +142,9 @@ static void message_open(std::shared_ptr<Core::Propagator> ws,
 	{
 		clients->open<TCP_Client<false>>(data.remote, ec,
 			[clients, &data](std::shared_ptr<TCP_Client<false>> client,
-					boost::system::error_code ec){
+					boost::system::error_code ec)
+		{
+			if(ec) return;
 			init_client(client, data, clients);
 		});
 	}
@@ -152,11 +153,13 @@ static void message_open(std::shared_ptr<Core::Propagator> ws,
 #if USE_SSL == 1
 		clients->open<TCP_Client<true>>(data.remote, ec,
 					[clients, &data](std::shared_ptr<TCP_Client<true>> client,
-							boost::system::error_code ec){
-					init_client(client, data, clients);
-		});
+							boost::system::error_code ec)
+			{
+				if(ec) return;
+				init_client(client, data, clients);
+			});
 #else
-	ec = boost::system::errc::make_error_code(boost::system::errc::wrong_protocol_type);
+		ec = boost::system::errc::make_error_code(boost::system::errc::wrong_protocol_type);
 #endif /* USE_SSL == 1 */
 	}
 
@@ -165,7 +168,6 @@ static void message_open(std::shared_ptr<Core::Propagator> ws,
 		Core::fail_message(ws, Message::App::tcp_client, ec);
 		return;
 	}
-	//message_status(clients);
 }
 
 }//TCP_Client

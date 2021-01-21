@@ -3,7 +3,6 @@
 
 #include "core/message.hpp"
 #include "types.hpp"
-#include "byte_array.h"
 #include <memory>
 //#include "my_async.hpp"
 
@@ -11,9 +10,9 @@ namespace Apps{
 namespace TCP_Client{
 
 Message::Type_Send make_status_message(std::shared_ptr<TCP_Container>);
-Message::Type_Send make_received_message(
-		boost::asio::ip::tcp::endpoint const&,
-		Byte_Array const&);
+//Message::Type_Send make_received_message(
+//		boost::asio::ip::tcp::endpoint const&,
+//		Byte_Array const&);
 
 }//TCP_Client
 }//Apps

@@ -1,6 +1,8 @@
 #ifndef MY_ASYNC_TCP_CLIENT_BASE_IMPL_HPP__
 #define MY_ASYNC_TCP_CLIENT_BASE_IMPL_HPP__
 
+#include "../../util/tcp_options.hpp"
+
 namespace My_Async{
 namespace TCP{
 
@@ -24,25 +26,16 @@ template<typename Derived,
 		typename InContainer,
 		typename OutContainer,
 		std::size_t ReadBufferSize>
+template<typename Callback>
 void
 Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
-open(tcp::endpoint ep, boost::system::error_code ec) noexcept
+open(tcp::endpoint ep, Callback cb) noexcept
 {
-	stream_.lowest_layer().connect(ep, ec);
-	if(ec)
-		return fail(ec, "open");
-
-	if constexpr(UseSSL)
-	{
-#if USE_SSL == 1
-		stream_.handshake(boost::asio::ssl::stream_base::client, ec);
-		if(ec)
-			return fail(ec, "handshake");
-#endif /* USE_SSL == 1 */
-	}
-
-	on_open();
-	do_read();
+	stream_.lowest_layer().async_connect(ep,
+			[self =  derived().shared_from_this(), cb](const boost::system::error_code& ec)
+			{
+		self->opened_cb(ec, cb);
+	});
 }
 
 #if USE_SSL == 1
@@ -55,6 +48,24 @@ void
 Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
 on_handshake(boost::system::error_code ec)
 {
+	if(ec)
+		return fail(ec, "handshake");
+
+	on_open();
+	do_read();
+}
+
+template<typename Derived,
+		bool UseSSL,
+		typename InContainer,
+		typename OutContainer,
+		std::size_t ReadBufferSize>
+template<typename Callback>
+void
+Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
+on_handshake_cb(boost::system::error_code ec, Callback cb)
+{
+	cb(derived().shared_from_this(), ec);
 	if(ec)
 		return fail(ec, "handshake");
 
@@ -85,8 +96,44 @@ opened(const boost::system::error_code& ec) noexcept
 				derived().shared_from_this(),
 				std::placeholders::_1));
 #endif /* USE_SSL == 1 */
-	} else
+	}
+	else
 	{
+		on_open();
+		do_read();
+	}
+}
+
+template<typename Derived,
+		bool UseSSL,
+		typename InContainer,
+		typename OutContainer,
+		std::size_t ReadBufferSize>
+template<typename Callback>
+void
+Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
+opened_cb(const boost::system::error_code& ec, Callback cb) noexcept
+{
+	if(ec)
+	{
+		cb(derived().shared_from_this(), ec);
+		return fail(ec, "open");
+	}
+
+	if constexpr(UseSSL)
+	{
+#if USE_SSL == 1
+		stream_.async_handshake(
+			boost::asio::ssl::stream_base::client,
+			[self = derived().shared_from_this(), cb](boost::system::error_code ec)
+			{
+				self->on_handshake_cb(ec, cb);
+			});
+#endif /* USE_SSL == 1 */
+	}
+	else
+	{
+		cb(derived().shared_from_this(), ec);
 		on_open();
 		do_read();
 	}
@@ -254,53 +301,13 @@ template<typename Derived,
 		std::size_t ReadBufferSize>
 void
 Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
-keep_alive(int32_t idle, int32_t count, int32_t interval) noexcept
+keep_alive(int32_t idle, int32_t count, int32_t interval, bool set /* = true */) noexcept
 {
-	keep_alive(true);
-
-#ifdef __unix__
-	if constexpr (UseSSL)
-	{
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPIDLE, &idle, sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPCNT, &count, sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(int32_t));
-	}
+	keep_alive(set);
+	if constexpr (use_ssl)
+		keepalive(stream_.lowest_layer().native_handle(), idle, count, interval);
 	else
-	{
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPIDLE, &idle, sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPCNT, &count, sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(int32_t));
-	}
-#else /* __unix__ */
-#	if KEEPALIVE_OLD == 0
-
-	if constexpr (UseSSL)
-	{
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPIDLE, &static_cast<const char>(idle), sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPCNT, &static_cast<const char>(count), sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPINTVL, &static_cast<const char>(interval), sizeof(int32_t));
-	}
-	else
-	{
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPIDLE, &static_cast<const char>(idle), sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPCNT, &static_cast<const char>(count), sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPINTVL, &static_cast<const char>(interval), sizeof(int32_t));
-	}
-#else /* KEEPALIVE_OLD == 0 */
-	DWORD bytes_ret = 0;
-	tcp_keepalive kpalive;
-
-	kpalive.onoff = 1;
-	kpalive.keepaliveinterval = interval * 1000;	//Miliseconds
-	kpalive.keepalivetime = idle * 1000;			//Miliseconds
-
-	if constexpr(UseSSL)
-		WSAIoctl(stream_.lowest_layer().native_handle(), SIO_KEEPALIVE_VALS, &kpalive, sizeof(kpalive), NULL, 0, &bytes_ret, NULL, NULL);
-	else
-		WSAIoctl(stream_.native_handle(), SIO_KEEPALIVE_VALS, &kpalive, sizeof(kpalive), NULL, 0, &bytes_ret, NULL, NULL);
-
-#endif /* KEEPALIVE_OLD == 0 */
-#endif /* __unix__ */
+		keepalive(stream_.native_handle(), idle, count, interval);
 }
 
 template<typename Derived,
@@ -383,11 +390,13 @@ Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
 fail(boost::system::error_code ec, char const* what) noexcept
 {
 	if(ec == boost::asio::error::operation_aborted
-		||	ec == boost::asio::error::eof){
+		||	ec == boost::asio::error::eof)
+	{
 		on_close(ec);
 		return;
 	}
-	if constexpr(UseSSL){
+	if constexpr(UseSSL)
+	{
 #if USE_SSL == 1
 		if(ec == boost::asio::ssl::error::stream_truncated){
 			on_close(ec);
@@ -397,6 +406,8 @@ fail(boost::system::error_code ec, char const* what) noexcept
 	}
 
 	on_error(ec, what);
+	if(ec == boost::system::errc::connection_refused)
+		return;
 	on_close(ec);
 	close();
 }

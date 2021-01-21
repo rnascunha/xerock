@@ -47,8 +47,8 @@ class Client_Base {
 		virtual ~Client_Base(){}
 
 		void open(tcp::endpoint ep) noexcept;
-		//Syncronous
-		void open(tcp::endpoint, boost::system::error_code) noexcept;
+		template<typename Callback>
+		void open(tcp::endpoint ep, Callback cb) noexcept;
 
 		void close() noexcept;
 
@@ -58,7 +58,7 @@ class Client_Base {
 		bool keep_alive() const noexcept;
 		void keep_alive(bool enable) noexcept;
 
-		void keep_alive(int32_t idle, int32_t count, int32_t interval) noexcept;
+		void keep_alive(int32_t idle, int32_t count, int32_t interval, bool set = true) noexcept;
 
 		tcp::endpoint endpoint() const;
 		tcp::endpoint local_endpoint() const;
@@ -66,9 +66,13 @@ class Client_Base {
 	protected:
 #if USE_SSL == 1
 		//Do SSL handshake
-		void on_handshake(boost::system::error_code ec);
+		void on_handshake(boost::system::error_code);
+		template<typename Callback>
+		void on_handshake_cb(boost::system::error_code, Callback);
 #endif
-		void opened(const boost::system::error_code& error) noexcept;
+		void opened(const boost::system::error_code&) noexcept;
+		template<typename Callback>
+		void opened_cb(const boost::system::error_code&, Callback) noexcept;
 
 		void closing() noexcept;
 

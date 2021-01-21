@@ -1,6 +1,8 @@
 #ifndef MY_ASYNC_TCP_SERVER_SESSION_IMPL_HPP__
 #define MY_ASYNC_TCP_SERVER_SESSION_IMPL_HPP__
 
+#include "../../util/tcp_options.hpp"
+
 namespace My_Async{
 namespace TCP{
 
@@ -116,53 +118,13 @@ template<typename Derived,
 		std::size_t ReadBufferSize>
 void
 Session_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
-keep_alive(int32_t idle, int32_t count, int32_t interval) noexcept
+keep_alive(int32_t idle, int32_t count, int32_t interval, bool set /* = true */) noexcept
 {
-	keep_alive(true);
-
-#ifdef __unix__
-	if constexpr (UseSSL)
-	{
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPIDLE, &idle, sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPCNT, &count, sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(int32_t));
-	}
+	keep_alive(set);
+	if constexpr (use_ssl)
+		keepalive(stream_.lowest_layer().native_handle(), idle, count, interval);
 	else
-	{
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPIDLE, &idle, sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPCNT, &count, sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(int32_t));
-	}
-#else /* __unix__ */
-#	if KEEPALIVE_OLD == 0
-
-	if constexpr (UseSSL)
-	{
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPIDLE, &static_cast<const char>(idle), sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPCNT, &static_cast<const char>(count), sizeof(int32_t));
-		::setsockopt(stream_.lowest_layer().native_handle(), IPPROTO_TCP, TCP_KEEPINTVL, &static_cast<const char>(interval), sizeof(int32_t));
-	}
-	else
-	{
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPIDLE, &static_cast<const char>(idle), sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPCNT, &static_cast<const char>(count), sizeof(int32_t));
-		::setsockopt(stream_.native_handle(), IPPROTO_TCP, TCP_KEEPINTVL, &static_cast<const char>(interval), sizeof(int32_t));
-	}
-#else /* KEEPALIVE_OLD == 0 */
-	DWORD bytes_ret = 0;
-	tcp_keepalive kpalive;
-
-	kpalive.onoff = 1;
-	kpalive.keepaliveinterval = interval * 1000;	//Miliseconds
-	kpalive.keepalivetime = idle * 1000;			//Miliseconds
-
-	if constexpr(UseSSL)
-		WSAIoctl(stream_.lowest_layer().native_handle(), SIO_KEEPALIVE_VALS, &kpalive, sizeof(kpalive), NULL, 0, &bytes_ret, NULL, NULL);
-	else
-		WSAIoctl(stream_.native_handle(), SIO_KEEPALIVE_VALS, &kpalive, sizeof(kpalive), NULL, 0, &bytes_ret, NULL, NULL);
-
-#endif /* KEEPALIVE_OLD == 0 */
-#endif /* __unix__ */
+		keepalive(stream_.native_handle(), idle, count, interval);
 }
 
 template<typename Derived,

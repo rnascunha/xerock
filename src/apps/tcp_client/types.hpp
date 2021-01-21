@@ -14,9 +14,6 @@
 namespace Apps{
 namespace TCP_Client{
 
-template<bool UseSSL>
-using Client = Apps::TCP_Client::TCP_Client<UseSSL>;
-
 #if USE_APP_TCP_CLIENT == 1
 using TCP_Container = My_Async::TCP::Container<false, true>;	//Plain
 #elif USE_APP_TCP_CLIENT == 2

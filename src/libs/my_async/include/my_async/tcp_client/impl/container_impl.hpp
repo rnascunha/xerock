@@ -21,15 +21,11 @@ open(boost::asio::ip::tcp::endpoint const& ep,
 		} else {
 #if USE_SSL == 1
 			auto client = std::make_shared<Client>(ioc_, ctx_, std::forward<Args>(args)...);
-			boost::asio::post(ioc_, [&, client, ep, cb]{
-				boost::system::error_code ec;
-
-				client->open(ep, ec);
+			client->open(ep, [&, cb](std::shared_ptr<Client> client, const boost::system::error_code& ec){
+				if(!ec)
+					clients_[client->local_endpoint()] = std::make_shared<Client_Concept>(client);
 
 				cb(client, ec);
-				if(ec) return;
-
-				clients_[client->local_endpoint()] = std::make_shared<Client_Concept>(client);
 			});
 #endif
 		}
@@ -42,15 +38,11 @@ open(boost::asio::ip::tcp::endpoint const& ep,
 			return;
 		} else {
 			auto client = std::make_shared<Client>(ioc_, std::forward<Args>(args)...);
-			boost::asio::post(ioc_, [&, client, ep, cb]{
-				boost::system::error_code ec;
-
-				client->open(ep, ec);
+			client->open(ep, [&, client, cb](std::shared_ptr<Client> client, const boost::system::error_code& ec){
+				if(!ec)
+					clients_[client->local_endpoint()] = std::make_shared<Client_Concept>(client);
 
 				cb(client, ec);
-				if(ec) return;
-
-				clients_[client->local_endpoint()] = std::make_shared<Client_Concept>(client);
 			});
 		}
 	}

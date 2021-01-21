@@ -16,8 +16,6 @@ class Client_Concept{
 			virtual ~Concept(){}
 
 			virtual void open(tcp::endpoint ep) noexcept = 0;
-			//Syncronous
-			virtual void open(tcp::endpoint, boost::system::error_code) noexcept = 0;
 
 			virtual void close() noexcept = 0;
 
@@ -42,12 +40,6 @@ class Client_Concept{
 			void open(tcp::endpoint ep) noexcept override
 			{
 				client_->open(ep);
-			}
-
-			//Syncronous
-			void open(tcp::endpoint ep, boost::system::error_code ec) noexcept override
-			{
-				client_->open(ep, ec);
 			}
 
 			void close() noexcept override
@@ -108,12 +100,6 @@ class Client_Concept{
 		void open(tcp::endpoint ep) noexcept
 		{
 			client_->open(ep);
-		}
-
-		//Syncronous
-		void open(tcp::endpoint ep, boost::system::error_code ec) noexcept
-		{
-			client_->open(ep, ec);
 		}
 
 		void close() noexcept

@@ -71,26 +71,35 @@ bool parser_close(const Message::Type_Recv& doc, Message_Close& data)
 /**
  * Data
  */
-static bool check_data(const rapidjson::Document& doc){
+static bool check_data(const rapidjson::Document& doc)
+{
 	if(!(doc.HasMember(DATA_KEY) && doc[DATA_KEY].IsObject())) return false;
 
 	auto const& d = doc[DATA_KEY];
-	return ((d.HasMember(MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY)
-		&& d[MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY].IsString())
-		&& ((d.HasMember(MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY)
-		&& d[MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY].IsUint()))
-		&& ((d.HasMember(MESSAGE_TCP_CLIENT_DATA_KEY)
-		&& (d[MESSAGE_TCP_CLIENT_DATA_KEY].IsObject() || d[MESSAGE_TCP_CLIENT_DATA_KEY].IsString()))));
+	if(!(d.HasMember(MESSAGE_TCP_CLIENT_DATA_KEY)
+		&& (d[MESSAGE_TCP_CLIENT_DATA_KEY].IsObject() || d[MESSAGE_TCP_CLIENT_DATA_KEY].IsString())))
+	{
+		return false;
+	}
+
+	if(!(d.HasMember(MESSAGE_TCP_CLIENT_LOCAL) && d[MESSAGE_TCP_CLIENT_LOCAL].IsObject())) return false;
+
+	auto const& local = d[MESSAGE_TCP_CLIENT_LOCAL];
+	return (local.HasMember(MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY)
+		&& local[MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY].IsString())
+		&& (local.HasMember(MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY)
+		&& local[MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY].IsUint());
 }
 
 static bool get_data(const rapidjson::Value& doc, Message_Data& data)
 {
 	{
-		unsigned port = doc[MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY].GetUint();
+		auto const& local = doc[MESSAGE_TCP_CLIENT_LOCAL];
+		unsigned port = local[MESSAGE_TCP_CLIENT_DATA_LOCAL_PORT_KEY].GetUint();
 		if(!is_valid_port(port)) return false;
 
 		boost::system::error_code ec;
-		auto const address = boost::asio::ip::make_address(doc[MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY].GetString(), ec);
+		auto const address = boost::asio::ip::make_address(local[MESSAGE_TCP_CLIENT_DATA_LOCAL_ADDR_KEY].GetString(), ec);
 		if(ec) return false;
 
 		data.local = boost::asio::ip::tcp::endpoint{address, static_cast<unsigned short>(port)};

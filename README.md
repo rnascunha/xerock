@@ -1,10 +1,10 @@
 # Xerock
 
-**Xerock** is a set o tools (Linux and Windows) to assist the development of low level communication between devices. The plataform aims different kinds of connections, since physical connection (e.g. serial) to network protocols (e.g. TCP, WebSocket).
+**Xerock** is a set o tools (Linux and Windows) to assist the development of low level communication between devices. The plataform aims different kinds of links, since physical connection (e.g. serial) to network protocols (e.g. TCP, WebSocket).
 
-The application is divided into *daemon* (this project) and *interface* ([interface project](https://github.com/rnascunha/xerock_web)). You can access the *interface* at [this address](https://rnascunha.github.io/xerock/).
+The application is divided into *daemon* (this project) and *interface* ([daemon project](https://github.com/rnascunha/xerock_web)). You can access the *interface* at [this address](https://rnascunha.github.io/xerock/).
 
-The *daemon* is where the connections/protocols will be running, and at the *interface* you can access *daemons* (as many as you need) to interact/viasualize the data. All people connected to the same *daemon* will receive the same data traffic.
+The *daemon* is where the connections/protocols will be running, and at *interface* you can access the *daemons* (as many as you need) to interact/viasualize the data. All people connected to the same *daemon* will receive the same data traffic.
 
 The software is composed by:
 
@@ -22,7 +22,7 @@ All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scri
 
 ## How it works
 
-![xerock schematic](docs/img/xerock_diagram.png) 
+<img align="right" src="docs/img/xerock_diagram_short.png"> 
 
 * Users access the [interface](https://rnascunha.github.io/xerock/);
 
@@ -32,7 +32,7 @@ All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scri
 
 * All data is shared by the users that are connected to the same *daemon* .
 
-Other possibility, that does't require a *daemon* , is the **local apps** . **Local apps** are applications that use some API supplied by the browser. As everything runs locally, the data isn't shared, but all features described above ( _Viwes_ ,  _Commands_ ,  _Scripts_ ) are still valid.
+Other possibility, that doesn't require a *daemon*, is the **local apps**. **Local apps** are applications that use some API supplied by the browser. As everything runs locally, the data isn't shared, but all features described above (*Views* , *Commands*, *Scripts*) are still valid.
 
 ## Build and compile
 
@@ -215,6 +215,7 @@ $ cmake
 		#0: disable app / 1: plain only (default) / 2: ssl only / 3: plain and ssl
 		#2 and 3 options require -DWITH_SSL=1
 		-DAPP_TCP_SERVER=<0|1|2|3>
+		-DAPP_TCP_CLIENT=<0|1|2|3>
 		#Path to the libraries 
 		-DBOOST_PATH=<path_to_boost>
 		-DRAPIDJSON_PATH=<path_to_rapidjson>
@@ -227,18 +228,18 @@ $ cmake
 		..
 ```
 
-To build and compile with SSL and *TCP Server App* with plain and SSL support, use the following **cmake** command:
+To build and compile with SSL, *TCP Server App* and *TCP Client App* with plain and SSL support, use the following **cmake** command:
 
 ```
 #At build directory
-$ cmake -DWITH_SSL=1 -DAPP_TCP_SERVER=3 ..
+$ cmake -DWITH_SSL=1 -DAPP_TCP_SERVER=3 -DAPP_TCP_CLIENT=3 ..
 ```
 
 A overview of the options:
 
 * `-DWITH_SSL=<0|1>`: enable (`1`)/disable (`0`, default) SSL support;
 
-*  `-DAPP_<app_name>=<0|1>`: enable (`1`)/disable (`0`) compilation of `<app_name>` ( _TCP Server App_  has some more options). By default all *apps* will be enabled, if supported by the OS;
+*  `-DAPP_<app_name>=<0|1>`: enable (`1`)/disable (`0`) compilation of `<app_name>` (*TCP Server App* and *TCP Client App* have some more options). By default all *apps* will be enabled, if supported by the OS;
 
 * `-D<library_name>_PATH=<path>`: point to a specific library path (other than the default). You can point to a diferent `<path>` if you already installed the library at your system (e.g. Boost), or if **cmake** couldn't find **OpenSSL** directory;  
 
@@ -331,29 +332,27 @@ Build options: `-DAPP_TCP_SERVER=<op>`, where:
 
 *TCP Server App* opens TCP socket to listen. Any client socket connected will be notified. Data can be sent to 1, any or all clients.
 
-When opening, you can also enable keepalive (SO_KEEPALIVE) socket option.
+When opening, you can also enable [keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive) (SO_KEEPALIVE) socket option.
 
-#### Keep alive
+### TCP Client
 
-Keep alive is a set of timers that will check if the TCP connection is still valid. The parameters are:
+Build options: `-DAPP_TCP_CLIENT=<op>`, where:
 
-Parameters|Description
-----------|-----------
-Idle|the interval between the last data packet sent and the first keepalive probe
-Interval|the interval between subsequential keepalive probes, regardless of what the connection has exchanged in the meantime
-Count|the number of unacknowledged probes to send before considering the connection dead and notifying the application layer
+`<op>`|Description
+------|-----------
+0|disable
+1|only plain sockets
+2|only SSL sockets (require SSL support)
+3|plain and SSL sockets (require SSL support)
 
-At Windows, there are some limitations depending on implementation or Windows version. You can force the use of one implementation using the `-DCONFIG_KEEPALIVE_OLD=<0|1>`: 
+*TCP Client App* connects to TCP listeners sockets. As a test, you can open a listening socket with [TCP Server App](#tcp-server) ant connect to it.
 
-* `1` (old): at this implemention, the *Count* parameter will be ignored. This parameter is fixed based on the Windows version. [link](https://docs.microsoft.com/en-us/windows/win32/winsock/so-keepalive); 
+When opening, you can also enable [keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive) (SO_KEEPALIVE) socket option.
 
-* `0` (new): here the parameter *Count* is only considered starting Windows 10 version 1703. 
-[link](https://docs.microsoft.com/en-us/windows/win32/winsock/ipproto-tcp-socket-options);
-
-[More about keepalive](https://tldp.org/HOWTO/TCP-Keepalive-HOWTO/overview.html).
+> If you try to connect a plain socket to a SSL listener (or vice versa) no error will be thrown. The connection at TCP level is completed succefully (but the socket will not be seen at the SSL part). No timeouts are configured to check this situation. After some data been transfer, a error will be displayed (**[336130315] wrong version number (handshake)**) and the connection be broken.
 
 ## Troubleshoot
 
 * If you try to build with flag `-DAPP_MONITOR=1` at Windows it will fail. *Monitor App* is not supported at Windows (yet?). Just don't explicity use this flag at Window and the build will just ignore it.
 
-* At Windows, if you have any problems at compilations with errors describing *tcp_keepalive*-like **not found**, try to use the `-DCONFIG_KEEPALIVE_OLD=<0|1>` (well, just try both... not at the same time ;-) ).
+* At Windows, if you have any problems at compilations with errors describing *tcp_keepalive*-like **not found**, try to use the `-DCONFIG_KEEPALIVE_OLD=<0|1>` (well, just try both... not at the same time ;-) ). More about keep alive [here]([keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive).

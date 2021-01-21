@@ -1,4 +1,5 @@
 #include "../make.hpp"
+#include "../make_message.hpp"
 #include "rapidjson/document.h"
 #include "defines.hpp"
 
@@ -9,7 +10,7 @@ Message::Type_Send make_status_message(std::shared_ptr<TCP_Container> clients)
 {
 	rapidjson::Document doc;
 
-	doc.SetObject();
+	doc.SetArray();
 
 	auto const eps = clients->endpoints();
 	for(auto const ep : eps)
@@ -44,7 +45,7 @@ Message::Type_Send make_status_message(std::shared_ptr<TCP_Container> clients)
 		remote_v.AddMember(MESSAGE_TCP_CLIENT_STATUS_EP_PORT_KEY,
 				remote.port(),
 				doc.GetAllocator());
-		ep_v.AddMember(MESSAGE_TCP_CLIENT_STATUS_EP_LOCAL_KEY, remote_v, doc.GetAllocator());
+		ep_v.AddMember(MESSAGE_TCP_CLIENT_STATUS_EP_REMOTE_KEY, remote_v, doc.GetAllocator());
 
 		doc.PushBack(ep_v, doc.GetAllocator());
 	}

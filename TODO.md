@@ -30,7 +30,7 @@
 
 * Enable/disable apps at run time
 
-* New apps ideas: TCP Client, UDP Server/Client, CoAP Server/Client...
+* New apps ideas: ~TCP Client~, UDP Server/Client, CoAP Server/Client...
 
 ###Serial
 

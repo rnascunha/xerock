@@ -7,7 +7,9 @@
 #include "my_async.hpp"
 #include "byte_array.h"
 
-//#include "make.hpp"
+#include "make_message.hpp"
+
+#include <iostream>
 
 #include <functional>
 
@@ -29,20 +31,20 @@ class TCP_Client final :
 
 		boost::asio::ip::tcp::endpoint local;
 	protected:
-		void read_handler(Byte_Array) noexcept override
+		void read_handler(Byte_Array data) noexcept override
 		{
-//			Core::Propagator::write_all(
-//							Byte_Array(
-//								make_received_message(
-//										this->local_endpoint(),
-//										data)
-//							));
+			Core::Propagator::write_all(
+							Byte_Array(
+								make_received_message(
+										this->local_endpoint(),
+										data))
+							);
 		}
 
 		void on_open() noexcept override
 		{
-			local = this->local_endpoint();
-			this->send_status();
+			//Local endpoint must be saved to be removed (be finded) from container when closed.
+			local = boost::asio::ip::tcp::endpoint{this->local_endpoint()};
 		}
 
 		void on_error(boost::system::error_code ec, char const* what) noexcept override
