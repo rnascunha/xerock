@@ -3,10 +3,14 @@
 
 #include <string>
 
+#define DEFAULT_ADDRESS		"0.0.0.0"
+#define INVALID_PORT		0
+#define DEFAULT_NUM_THREADS	1
+
 struct arguments {
-	std::string addr;
-	int port;
-	int threads;
+	std::string addr = DEFAULT_ADDRESS;
+	int port = INVALID_PORT;
+	int threads = DEFAULT_NUM_THREADS;
 #if USE_SSL == 1
 	std::string key;
 	std::string cert;

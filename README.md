@@ -176,8 +176,7 @@ After initiate the  _daemon_ , [open the interface](https://rnascunha.github.io/
 All running options can be checked with option `-h`:
 
 ```
-$ ./xerock -h
-./xerock [options...] <port>
+$ ./xerock [options...] <port>
 Required:
 	<port>: socket port.
 Required when compiled with SSL support:
@@ -192,6 +191,8 @@ Options:
 		IP address that will be listened.
 	-t, --threads=<num> | Default: 1
 		Number of threads that will share the work. <num> must be a number equal or greater 1.
+	-o, --config [config_file]
+		Read/write config file. If no argument provided, prints the configuration passed at command line (to be redirected to a file). If a argument is provided, reads configuration from this file (inline attributes overwrite file attributes).  
  	-s, --ssl
 		Print 'true' if compiled with SSL support (otherwise 'false').
 	-p, --apps
@@ -212,7 +213,7 @@ $ cmake
 		-DAPP_ECHO=<0|1>
 		-DAPP_SERIAL=<0|1> 
 		-DAPP_MONITOR=<0|1> 
-		#0: disable app / 1: plain only (default) / 2: ssl only / 3: plain and ssl
+		#0: disable app / 1: plain only (default) / 2: ssl only / 3: plain and ssl (default if -DWITH_SSL=1)
 		#2 and 3 options require -DWITH_SSL=1
 		-DAPP_TCP_SERVER=<0|1|2|3>
 		-DAPP_TCP_CLIENT=<0|1|2|3>
@@ -228,11 +229,11 @@ $ cmake
 		..
 ```
 
-To build and compile with SSL, *TCP Server App* and *TCP Client App* with plain and SSL support, use the following **cmake** command:
+To build and compile with SSL:
 
 ```
 #At build directory
-$ cmake -DWITH_SSL=1 -DAPP_TCP_SERVER=3 -DAPP_TCP_CLIENT=3 ..
+$ cmake -DWITH_SSL=1 ..
 ```
 
 A overview of the options:
@@ -326,9 +327,9 @@ Build options: `-DAPP_TCP_SERVER=<op>`, where:
 `<op>`|Description
 ------|-----------
 0|disable
-1|only plain sockets
+1|only plain sockets (default)
 2|only SSL sockets (require SSL support)
-3|plain and SSL sockets (require SSL support)
+3|plain and SSL sockets (require SSL support / default if -DWITH_SSL=1)
 
 *TCP Server App* opens TCP socket to listen. Any client socket connected will be notified. Data can be sent to 1, any or all clients.
 
@@ -341,18 +342,18 @@ Build options: `-DAPP_TCP_CLIENT=<op>`, where:
 `<op>`|Description
 ------|-----------
 0|disable
-1|only plain sockets
+1|only plain sockets (default)
 2|only SSL sockets (require SSL support)
-3|plain and SSL sockets (require SSL support)
+3|plain and SSL sockets (require SSL support / default if -DWITH_SSL=1)
 
 *TCP Client App* connects to TCP listeners sockets. As a test, you can open a listening socket with [TCP Server App](#tcp-server) ant connect to it.
 
 When opening, you can also enable [keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive) (SO_KEEPALIVE) socket option.
 
-> If you try to connect a plain socket to a SSL listener (or vice versa) no error will be thrown. The connection at TCP level is completed succefully (but the socket will not be seen at the SSL part). No timeouts are configured to check this situation. After some data been transfer, a error will be displayed (**[336130315] wrong version number (handshake)**) and the connection be broken.
+> If you try to connect a plain socket to a SSL listener (or vice versa) no error will be thrown. The connection at TCP level is completed succefully (but the socket will not be seen). No timeouts are configured to check this situation. After some data been transfer, a error will be displayed (**[336130315] wrong version number (handshake)**) and the connection broken.
 
 ## Troubleshoot
 
 * If you try to build with flag `-DAPP_MONITOR=1` at Windows it will fail. *Monitor App* is not supported at Windows (yet?). Just don't explicity use this flag at Window and the build will just ignore it.
 
-* At Windows, if you have any problems at compilations with errors describing *tcp_keepalive*-like **not found**, try to use the `-DCONFIG_KEEPALIVE_OLD=<0|1>` (well, just try both... not at the same time ;-) ). More about keep alive [here]([keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive).
+* At Windows, if you have any problems at compilations with errors describing *tcp_keepalive*-like **not found**, try to use the `-DCONFIG_KEEPALIVE_OLD=<0|1>` (well, just try both... not at the same time ;-) ). More about keep alive [here](https://github.com/rnascunha/xerock/wiki/Keep-Alive).
