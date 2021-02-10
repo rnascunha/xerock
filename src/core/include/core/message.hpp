@@ -13,7 +13,8 @@ enum class App{
 	serial,
 	monitor,
 	tcp_server,
-	tcp_client
+	tcp_client,
+	udp_client,
 };
 
 enum class Type{

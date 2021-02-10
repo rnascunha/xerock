@@ -4,7 +4,6 @@
 #include "core/message.hpp"
 #include "types.hpp"
 #include <memory>
-//#include "my_async.hpp"
 
 namespace Apps{
 namespace TCP_Client{

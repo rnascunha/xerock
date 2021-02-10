@@ -202,7 +202,8 @@ template<typename Derived,
 		std::size_t ReadBufferSize>
 void
 Client_Base<Derived, UseSSL, InContainer, OutContainer, ReadBufferSize>::
-write(OutContainer const data) noexcept{
+write(OutContainer const data) noexcept
+{
 	write(std::make_shared<OutContainer const>(std::move(data)));
 }
 

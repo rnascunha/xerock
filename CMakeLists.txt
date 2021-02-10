@@ -24,6 +24,7 @@ set(USE_SSL 			0)
 set(USE_APP_ECHO 		1)
 set(USE_APP_SERIAL 		1)
 set(USE_APP_MONITOR 	1)
+set(USE_APP_UDP_CLIENT 	1)
 
 #0 - disable
 #1 - enable plain
@@ -93,6 +94,17 @@ if(DEFINED APP_TCP_CLIENT)
 	endif()
 	unset(APP_TCP_CLIENT CACHE)
 endif()
+
+if(DEFINED APP_UDP_CLIENT)
+	if(${APP_UDP_CLIENT} EQUAL 0)
+		set(USE_UDP_CLIENT 0)
+	endif()
+	unset(APP_UDP_CLIENT CACHE)
+endif()
+
+#
+# PATHs
+#
 
 if(DEFINED BOOST_PATH)
 	set(BOOST_ROOT ${BOOST_PATH})
@@ -192,6 +204,7 @@ add_definitions(-DBOOST_SYSTEM_USE_UTF8		#Make windows error output UTF8 / Ignor
 				-DUSE_APP_MONITOR=${USE_APP_MONITOR}
 				-DUSE_APP_TCP_SERVER=${USE_APP_TCP_SERVER}
 				-DUSE_APP_TCP_CLIENT=${USE_APP_TCP_CLIENT}
+				-DUSE_APP_UDP_CLIENT=${USE_APP_UDP_CLIENT}
 				-DUSE_SSL=${USE_SSL}
 				-DKEEPALIVE_OLD=${KEEPALIVE_OLD})
 
@@ -260,6 +273,10 @@ if(${USE_APP_TCP_CLIENT} GREATER 0)
 	message("Enable App TCP Client " ${USE_APP_TCP_CLIENT})
 	add_subdirectory(${APPS_DIR}/tcp_client)
 endif()
+if(${USE_APP_UDP_CLIENT} EQUAL 1)
+	message("Enable App UDP Client")
+	add_subdirectory(${APPS_DIR}/udp_client)
+endif()
 
 message("Adding Core")
 add_subdirectory(${SRC_DIR}/core)
@@ -307,6 +324,9 @@ if(${USE_APP_TCP_SERVER} GREATER 0)
 endif()
 if(${USE_APP_TCP_CLIENT} GREATER 0)
 	target_link_libraries(${PROJECT_NAME} tcp_client_app)
+endif()
+if(${USE_APP_UDP_CLIENT} EQUAL 1)
+	target_link_libraries(${PROJECT_NAME} udp_client_app)
 endif()
 
 if(WIN32)

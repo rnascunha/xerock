@@ -39,4 +39,10 @@
 #include "my_async/tcp_client/simple_container.hpp"
 #include "my_async/tcp_client/container.hpp"
 
+//UDP client
+#include "my_async/udp_client/client_base.hpp"
+#include "my_async/udp_client/client_callback.hpp"
+#include "my_async/udp_client/client_static_callback.hpp"
+#include "my_async/udp_client/simple_container.hpp"
+
 #endif /* MY_ASYNC_BASE_HPP__ */
