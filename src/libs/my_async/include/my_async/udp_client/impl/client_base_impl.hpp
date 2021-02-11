@@ -42,6 +42,7 @@ open(udp::endpoint const& endpoint) noexcept
 {
 	endpoint_ = endpoint;
 
+	on_open();
 	do_read();
 }
 
@@ -82,17 +83,7 @@ Client_Base<Derived, InContainer, OutContainer, ReadBufferSize>::
 close(boost::system::error_code& ec) noexcept
 {
 	socket_.close(ec);
-}
-
-template<typename Derived,
-		typename InContainer,
-		typename OutContainer,
-		std::size_t ReadBufferSize>
-void
-Client_Base<Derived, InContainer, OutContainer, ReadBufferSize>::
-close()
-{
-	socket_.close();
+	on_close(ec);
 }
 
 template<typename Derived,
@@ -115,6 +106,22 @@ Client_Base<Derived, InContainer, OutContainer, ReadBufferSize>::
 local_endpoint() const
 {
 	return socket_.local_endpoint();
+}
+
+template<typename Derived,
+		typename InContainer,
+		typename OutContainer,
+		std::size_t ReadBufferSize>
+void
+Client_Base<Derived, InContainer, OutContainer, ReadBufferSize>::
+fail(boost::system::error_code ec, char const* what) noexcept
+{
+	if(ec == boost::asio::error::operation_aborted ||
+		ec == boost::asio::error::bad_descriptor)
+		return;
+
+	on_error(ec, what);
+	close(ec);
 }
 
 template<typename Derived,

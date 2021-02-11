@@ -23,6 +23,10 @@
 #include "tcp_client/tcp_client.hpp"
 #endif
 
+#if USE_APP_UDP_CLIENT == 1
+#include "udp_client/udp_client.hpp"
+#endif
+
 namespace Apps{
 
 #if USE_SSL == 1
@@ -88,8 +92,17 @@ void init_apps(boost::asio::io_context& ioc)
 							std::placeholders::_3,
 							tcp_clients)}
 	);
-
 #endif /* USE_APP_TCP_SERVER > 0 && USE_APP_TCP_SERVER <= 3 */
+
+#if USE_APP_UDP_CLIENT == 1
+	Core::Dispatcher::register_app(Core::App{Message::App::udp_client, Apps::UDP_Client::name,
+					std::bind(Apps::UDP_Client::udp_client_app,
+							std::placeholders::_1,
+							std::placeholders::_2,
+							std::placeholders::_3,
+							std::make_shared<Apps::UDP_Client::UDP_Container>(ioc))}
+	);
+#endif /* USE_APP_UDP_CLIENT == 1 */
 
 }
 

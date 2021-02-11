@@ -12,7 +12,21 @@ class udp_echo_client : public base_class<udp_echo_client>,
 		using base_class<udp_echo_client>::base_class;
 
 	protected:
-		void fail(boost::system::error_code ec, char const* what) noexcept
+		void on_open() noexcept
+		{
+			std::cout << "Socket opened: "
+				<< local_endpoint().address().to_string() << ":"
+				<< local_endpoint().port() << " > "
+				<< endpoint().address().to_string() << ":"
+				<< endpoint().port() << "\n";
+		}
+
+		void on_close(boost::system::error_code) noexcept
+		{
+			std::cout << "Socket closed\n";
+		}
+
+		void on_error(boost::system::error_code ec, char const* what) noexcept
 		{
 			std::cerr << what << " [" << ec.value() << "] " << ec.message() << "\n";
 		}
@@ -20,6 +34,12 @@ class udp_echo_client : public base_class<udp_echo_client>,
 		void read_handler(std::string data) noexcept
 		{
 			std::cout << "Received: " << data << "\n";
+			if(data == "quit\n") {
+				boost::system::error_code ec;
+				close(ec);
+				return;
+			}
+
 			write(data);
 		}
 };
@@ -52,11 +72,6 @@ int main(int argc, char** argv)
 	auto socket = std::make_shared<udp_echo_client>(ioc);
 
 	socket->open(boost::asio::ip::udp::endpoint(address, port));
-	std::cout << "Opened: "
-			<< socket->local_endpoint().address().to_string() << ":"
-			<< socket->local_endpoint().port() << " > "
-			<< socket->endpoint().address().to_string() << ":"
-			<< socket->endpoint().port() << "\n";
 	socket->write(std::string("teste"));
 
 	ioc.run();

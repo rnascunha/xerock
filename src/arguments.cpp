@@ -160,6 +160,7 @@ void check_arguments(int, char* argv[], arguments& args)
 		ss << ",tcp_client=" << (USE_APP_TCP_CLIENT == 0 ? "false" : (
 						(USE_APP_TCP_CLIENT == 1 ? "plain" : (
 								USE_APP_TCP_CLIENT == 2 ? "ssl" : "plain,ssl"))));
+		ss << ",udp_client" << (USE_APP_UDP_CLIENT ? "true" : "false");
 		std::cout << ss.str() << "\n";
 
 		exit(EXIT_SUCCESS);

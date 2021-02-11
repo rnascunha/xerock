@@ -94,7 +94,7 @@ static bool check_data(const rapidjson::Document& doc)
 static bool get_data(const rapidjson::Value& doc, Message_Data& data)
 {
 	{
-		auto const& local = doc[MESSAGE_UDP_CLIENT_DATA_KEY];
+		auto const& local = doc[MESSAGE_UDP_CLIENT_LOCAL];
 		unsigned port = local[MESSAGE_UDP_CLIENT_DATA_LOCAL_PORT_KEY].GetUint();
 		if(!is_valid_port(port)) return false;
 
@@ -105,9 +105,9 @@ static bool get_data(const rapidjson::Value& doc, Message_Data& data)
 		data.local = boost::asio::ip::udp::endpoint{address, static_cast<unsigned short>(port)};
 	}
 
-	if(doc[MESSAGE_UDP_CLIENT_LOCAL].IsObject())
-			::Util::json_2_byte_array(doc[MESSAGE_UDP_CLIENT_LOCAL], data.data);
-	else data.data = doc[MESSAGE_UDP_CLIENT_LOCAL].GetString();
+	if(doc[MESSAGE_UDP_CLIENT_DATA_KEY].IsObject())
+			::Util::json_2_byte_array(doc[MESSAGE_UDP_CLIENT_DATA_KEY], data.data);
+	else data.data = doc[MESSAGE_UDP_CLIENT_DATA_KEY].GetString();
 
 	return true;
 }

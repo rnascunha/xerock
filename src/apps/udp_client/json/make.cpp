@@ -33,7 +33,7 @@ Message::Type_Send make_status_message(std::shared_ptr<UDP_Container> clients)
 		remote_v.AddMember(MESSAGE_UDP_CLIENT_STATUS_EP_ADDR_KEY,
 				rapidjson::Value(remote.address().to_string().c_str(),
 				doc.GetAllocator()).Move(), doc.GetAllocator());
-		remote_v.AddMember(MESSAGE_UDP_CLIENT_STATUS_EP_REMOTE_KEY,
+		remote_v.AddMember(MESSAGE_UDP_CLIENT_STATUS_EP_PORT_KEY,
 				remote.port(),
 				doc.GetAllocator());
 		ep_v.AddMember(MESSAGE_UDP_CLIENT_STATUS_EP_REMOTE_KEY, remote_v, doc.GetAllocator());

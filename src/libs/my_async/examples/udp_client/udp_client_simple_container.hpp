@@ -12,17 +12,39 @@ class udp_echo_client : public base_class<udp_echo_client>,
 		using base_class<udp_echo_client>::base_class;
 
 	protected:
-		void fail(boost::system::error_code ec, char const* what) noexcept
+		void on_open() noexcept override
+		{
+			std::cout << "Opened: "
+				<< local_endpoint().address().to_string() << ":"
+				<< local_endpoint().port() << " > "
+				<< endpoint().address().to_string() << ":"
+				<< endpoint().port() << "\n";
+		}
+
+		void on_close(boost::system::error_code) noexcept override
+		{
+			std::cout << "Socket closed\n";
+		}
+
+		void on_error(boost::system::error_code ec, char const* what) noexcept override
 		{
 			std::cerr << what << " [" << ec.value() << "] " << ec.message() << "\n";
 		}
 
-		void read_handler(std::string data) noexcept
+		void read_handler(std::string data) noexcept override
 		{
 			std::cout << "Received["
 					<< local_endpoint().address().to_string() << ":"
 					<< local_endpoint().port() << "]: "
 					<< data << "\n";
+
+			if(data == "quit\n")
+			{
+				boost::system::error_code ec;
+				close(ec);
+				return;
+			}
+
 			write(data);
 		}
 };
@@ -61,12 +83,6 @@ int main(int argc, char** argv)
 	auto const eps = container.endpoints();
 	for(auto const& [local, remote] : eps)
 	{
-		std::cout << "Opened: "
-			<< local.address().to_string() << ":"
-			<< local.port() << " > "
-			<< remote.address().to_string() << ":"
-			<< remote.port() << "\n";
-
 		container.write(local, std::string("teste"), ec);
 		if(ec)
 			std::cerr << "ERROR[" << ec.value() << "]: " << ec.message() << "\n";
@@ -76,3 +92,4 @@ int main(int argc, char** argv)
 
 	return EXIT_SUCCESS;
 }
+

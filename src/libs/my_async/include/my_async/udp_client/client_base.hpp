@@ -34,7 +34,6 @@ class Client_Base{
 		void write(std::shared_ptr<OutContainer const> data) noexcept;
 
 		void close(boost::system::error_code& ec) noexcept;
-		void close();
 
 		boost::asio::ip::udp::endpoint endpoint() const;
 		boost::asio::ip::udp::endpoint local_endpoint() const;
@@ -42,11 +41,16 @@ class Client_Base{
 		void do_read() noexcept;
 		void on_read(boost::system::error_code ec, std::size_t bytes_transfered) noexcept;
 
+		void fail(boost::system::error_code ec, char const* what) noexcept;
+
 		void writing(std::shared_ptr<OutContainer const> const data) noexcept;
 		void do_write() noexcept;
 		void on_write(boost::system::error_code ec, std::size_t) noexcept;
 
-		virtual void fail(boost::system::error_code ec, char const* what) noexcept = 0;
+		virtual void on_open() noexcept{}
+		virtual void on_error(boost::system::error_code, char const*) noexcept{}
+		virtual void on_close(boost::system::error_code) noexcept{}
+
 		virtual void read_handler(InContainer data) noexcept = 0;
 
 		boost::asio::ip::udp::socket socket_;

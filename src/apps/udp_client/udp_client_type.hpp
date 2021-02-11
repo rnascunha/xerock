@@ -36,7 +36,7 @@ class UDP_Client final :
 							);
 		}
 
-		void fail(boost::system::error_code ec, char const* what) noexcept override
+		void on_error(boost::system::error_code ec, char const* what) noexcept override
 		{
 			std::cerr << what << "[" << ec.value() << "]: " << ec.message() << "\n";
 			Core::fail_message(Message::App::udp_client, ec, what);
