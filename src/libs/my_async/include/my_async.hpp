@@ -45,4 +45,10 @@
 #include "my_async/udp_client/client_static_callback.hpp"
 #include "my_async/udp_client/simple_container.hpp"
 
+//UDP Server
+#include "my_async/udp_server/server_base.hpp"
+#include "my_async/udp_server/server_callback.hpp"
+#include "my_async/udp_server/server_static_callback.hpp"
+#include "my_async/udp_server/simple_container.hpp"
+
 #endif /* MY_ASYNC_BASE_HPP__ */
