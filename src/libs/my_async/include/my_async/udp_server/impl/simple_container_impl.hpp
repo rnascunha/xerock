@@ -30,7 +30,7 @@ close(boost::asio::ip::udp::endpoint const& local_ep,
 	}
 
 	server->second->close(ec);
-	server.erase(server);
+	servers_.erase(server);
 }
 
 template<typename Server>
@@ -39,7 +39,7 @@ void
 Simple_Container_Server<Server>::
 write(boost::asio::ip::udp::endpoint const& from,
 		boost::asio::ip::udp::endpoint const& to,
-		OutContainer const data,
+		OutContainer const& data,
 		boost::system::error_code& ec)
 {
 	auto server = servers_.find(from);
@@ -50,6 +50,27 @@ write(boost::asio::ip::udp::endpoint const& from,
 	}
 
 	server->second->write(to, std::make_shared<OutContainer const>(data));
+}
+
+template<typename Server>
+template<typename OutContainer>
+void
+Simple_Container_Server<Server>::
+write(boost::asio::ip::udp::endpoint const& from,
+		std::vector<boost::asio::ip::udp::endpoint> const& tos,
+		OutContainer const& data,
+		boost::system::error_code& ec)
+{
+	auto server = servers_.find(from);
+	if(server == servers_.end())
+	{
+		ec = boost::system::errc::make_error_code(boost::system::errc::not_connected);
+		return;
+	}
+
+	auto const s_data = std::make_shared<OutContainer const>(data);
+	for(auto const& to : tos)
+		server->second->write(to, s_data);
 }
 
 template<typename Server>
@@ -72,8 +93,8 @@ endpoints()
 {
 	std::vector<boost::asio::ip::udp::endpoint> v;
 
-	for (auto const& server : servers_)
-	    v.push_back(server->local_endpoint());
+	for (auto const [ep, server] : servers_)
+	    v.push_back(ep);
 
 	return v;
 }

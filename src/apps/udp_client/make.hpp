@@ -9,9 +9,6 @@ namespace Apps{
 namespace UDP_Client{
 
 Message::Type_Send make_status_message(std::shared_ptr<UDP_Container>);
-//Message::Type_Send make_received_message(
-//		boost::asio::ip::tcp::endpoint const&,
-//		Byte_Array const&);
 
 }//UDP_Client
 }//Apps

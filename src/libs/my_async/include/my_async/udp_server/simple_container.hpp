@@ -32,7 +32,13 @@ class Simple_Container_Server{
 		template<typename OutContainer>
 		void write(boost::asio::ip::udp::endpoint const& from,
 					boost::asio::ip::udp::endpoint const& to,
-					OutContainer const data,
+					OutContainer const& data,
+					boost::system::error_code& ec);
+
+		template<typename OutContainer>
+		void write(boost::asio::ip::udp::endpoint const& from,
+					std::vector<boost::asio::ip::udp::endpoint> const& tos,
+					OutContainer const& data,
 					boost::system::error_code& ec);
 
 		std::size_t size();

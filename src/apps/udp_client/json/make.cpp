@@ -1,4 +1,5 @@
 #include "../make.hpp"
+#include "../make_message.hpp"
 #include "rapidjson/document.h"
 #include "defines.hpp"
 

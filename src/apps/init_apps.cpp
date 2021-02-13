@@ -27,6 +27,10 @@
 #include "udp_client/udp_client.hpp"
 #endif
 
+#if USE_APP_UDP_SERVER == 1
+#include "udp_server/udp_server.hpp"
+#endif
+
 namespace Apps{
 
 #if USE_SSL == 1
@@ -103,6 +107,16 @@ void init_apps(boost::asio::io_context& ioc)
 							std::make_shared<Apps::UDP_Client::UDP_Container>(ioc))}
 	);
 #endif /* USE_APP_UDP_CLIENT == 1 */
+
+#if USE_APP_UDP_SERVER == 1
+	Core::Dispatcher::register_app(Core::App{Message::App::udp_server, Apps::UDP_Server::name,
+					std::bind(Apps::UDP_Server::udp_server_app,
+							std::placeholders::_1,
+							std::placeholders::_2,
+							std::placeholders::_3,
+							std::make_shared<Apps::UDP_Server::Container>(ioc))}
+	);
+#endif /* USE_APP_UDP_SERVER == 1 */
 
 }
 

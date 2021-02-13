@@ -15,6 +15,7 @@ enum class App{
 	tcp_server,
 	tcp_client,
 	udp_client,
+	udp_server
 };
 
 enum class Type{

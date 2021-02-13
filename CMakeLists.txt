@@ -21,17 +21,18 @@ endfunction()
 #
 #0 - disable / 1 - enable
 set(USE_SSL 			0)
-set(USE_APP_ECHO 		0)
-set(USE_APP_SERIAL 		0)
-set(USE_APP_MONITOR 	0)
-set(USE_APP_UDP_CLIENT 	0)
+set(USE_APP_ECHO 		1)
+set(USE_APP_SERIAL 		1)
+set(USE_APP_MONITOR 	1)
+set(USE_APP_UDP_CLIENT 	1)
+set(USE_APP_UDP_SERVER 	1)
 
 #0 - disable
 #1 - enable plain
 #2 - enble ssl
 #3 - enable plain & ssl
-set(USE_APP_TCP_SERVER 	0)
-set(USE_APP_TCP_CLIENT 	0)
+set(USE_APP_TCP_SERVER 	1)
+set(USE_APP_TCP_CLIENT 	1)
 
 set(BOOST_ROOT 			third/boost)
 set(RAPIDJSON_ROOT 		third/rapidjson/include)
@@ -97,9 +98,16 @@ endif()
 
 if(DEFINED APP_UDP_CLIENT)
 	if(${APP_UDP_CLIENT} EQUAL 0)
-		set(USE_UDP_CLIENT 0)
+		set(USE_APP_UDP_CLIENT 0)
 	endif()
 	unset(APP_UDP_CLIENT CACHE)
+endif()
+
+if(DEFINED APP_UDP_SERVER)
+	if(${APP_UDP_SERVER} EQUAL 0)
+		set(USE_APP_UDP_SERVER 0)
+	endif()
+	unset(APP_UDP_SERVER CACHE)
 endif()
 
 #
@@ -205,6 +213,7 @@ add_definitions(-DBOOST_SYSTEM_USE_UTF8		#Make windows error output UTF8 / Ignor
 				-DUSE_APP_TCP_SERVER=${USE_APP_TCP_SERVER}
 				-DUSE_APP_TCP_CLIENT=${USE_APP_TCP_CLIENT}
 				-DUSE_APP_UDP_CLIENT=${USE_APP_UDP_CLIENT}
+				-DUSE_APP_UDP_SERVER=${USE_APP_UDP_SERVER}
 				-DUSE_SSL=${USE_SSL}
 				-DKEEPALIVE_OLD=${KEEPALIVE_OLD})
 
@@ -251,7 +260,7 @@ if(${USE_SSL} EQUAL 1)
 endif()
 
 message("Adding Main APP")
-#add_subdirectory(${APPS_DIR}/main)
+add_subdirectory(${APPS_DIR}/main)
 
 if(${USE_APP_ECHO} EQUAL 1)
 	message("Enable App Echo")
@@ -278,8 +287,13 @@ if(${USE_APP_UDP_CLIENT} EQUAL 1)
 	add_subdirectory(${APPS_DIR}/udp_client)
 endif()
 
+if(${USE_APP_UDP_SERVER} EQUAL 1)
+	message("Enable App UDP Server")
+	add_subdirectory(${APPS_DIR}/udp_server)
+endif()
+
 message("Adding Core")
-#add_subdirectory(${SRC_DIR}/core)
+add_subdirectory(${SRC_DIR}/core)
 
 set(MAIN_SRC ${SRC_DIR}/main.cpp 
 				${SRC_DIR}/arguments.cpp 
@@ -289,8 +303,7 @@ if(USE_SSL)
 	list(APPEND MAIN_SRC ${SRC_DIR}/helpers/load_certificate.cpp)
 endif()
 
-#add_executable(${PROJECT_NAME} ${MAIN_SRC})
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} ${MAIN_SRC})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17
@@ -304,12 +317,12 @@ if(USE_SSL)
 	target_link_libraries(${PROJECT_NAME} OpenSSL::SSL)
 endif()
 
-#target_link_libraries(${PROJECT_NAME} byte_array)
-#target_link_libraries(${PROJECT_NAME} utility)
+target_link_libraries(${PROJECT_NAME} byte_array)
+target_link_libraries(${PROJECT_NAME} utility)
 target_link_libraries(${PROJECT_NAME} my_async)
 
-#target_link_libraries(${PROJECT_NAME} core)
-#target_link_libraries(${PROJECT_NAME} main_app)
+target_link_libraries(${PROJECT_NAME} core)
+target_link_libraries(${PROJECT_NAME} main_app)
 
 if(${USE_APP_ECHO} EQUAL 1)
 	target_link_libraries(${PROJECT_NAME} echo_app)
@@ -328,6 +341,10 @@ if(${USE_APP_TCP_CLIENT} GREATER 0)
 endif()
 if(${USE_APP_UDP_CLIENT} EQUAL 1)
 	target_link_libraries(${PROJECT_NAME} udp_client_app)
+endif()
+
+if(${USE_APP_UDP_SERVER} EQUAL 1)
+	target_link_libraries(${PROJECT_NAME} udp_server_app)
 endif()
 
 if(WIN32)
