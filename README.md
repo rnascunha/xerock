@@ -213,6 +213,8 @@ $ cmake
 		-DAPP_ECHO=<0|1>
 		-DAPP_SERIAL=<0|1> 
 		-DAPP_MONITOR=<0|1> 
+		-DAPP_UDP_CLIENT=<0|1>
+		-DAPP_UDP_SERVER=<0|1>
 		#0: disable app / 1: plain only (default) / 2: ssl only / 3: plain and ssl (default if -DWITH_SSL=1)
 		#2 and 3 options require -DWITH_SSL=1
 		-DAPP_TCP_SERVER=<0|1|2|3>
@@ -351,6 +353,20 @@ Build options: `-DAPP_TCP_CLIENT=<op>`, where:
 When opening, you can also enable [keepalive](https://github.com/rnascunha/xerock/wiki/Keep-Alive) (SO_KEEPALIVE) socket option.
 
 > If you try to connect a plain socket to a SSL listener (or vice versa) no error will be thrown. The connection at TCP level is completed succefully (but the socket will not be seen). No timeouts are configured to check this situation. After some data been transfer, a error will be displayed (**[336130315] wrong version number (handshake)**) and the connection broken.
+
+### UDP Client
+
+Build options: `-DAPP_UDP_CLIENT=1`.
+
+*UDP Client App* sends/received data through UDP sockets.
+
+> :warning: UDP sockets are connectless, i.e, when you "open" a socket to send data, there is no guaratees that the receiving site is even listening (no data is transfer at the "opening") ... Or that any data sent will be received.
+
+### UDP Server
+
+Build options: `-DAPP_UDP_SERVER=1`.
+
+*UDP Server App* opens a UDP socket to listen. 
 
 ## Troubleshoot
 
