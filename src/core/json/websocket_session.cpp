@@ -2,8 +2,6 @@
 
 #include <memory>
 
-#include "util/json_helper.hpp"
-
 #include "core/app.hpp"
 #include "core/helpers.hpp"
 #include "core/error.hpp"
@@ -13,7 +11,8 @@
 #include "../../apps/main/make.hpp"
 #include "../../apps/main/parser.hpp"
 
-#include <iostream>
+#include "util/json_helper.hpp"
+//#include <iostream>
 
 namespace Core{
 

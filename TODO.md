@@ -16,11 +16,13 @@
 
 * Open a command line (like console) to send commands at run time (open/close/list resources)
 
+* Document code
+
 ###Command line
 
-* Read config from file
+* ~Read config from file~
 
-* Create config file from command line (instead of run app, just print "config file")  
+* ~Create config file from command line (instead of run app, just print "config file")~  
 
 ##Apps
 
@@ -30,7 +32,7 @@
 
 * Enable/disable apps at run time
 
-* New apps ideas: TCP Client, UDP Server/Client, CoAP Server/Client...
+* New apps ideas: ~TCP Client~, ~UDP Server/Client~, CoAP Server/Client...
 
 ###Serial
 

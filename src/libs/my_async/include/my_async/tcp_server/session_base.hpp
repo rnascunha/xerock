@@ -57,13 +57,7 @@ class Session_Base
 		bool keep_alive() const noexcept;
 		void keep_alive(bool enable) noexcept;
 
-		/**
-		* At Windows System is not possible to configure the count 
-		* parameter, it's defaulted by the system.
-		*
-		* More about: https://docs.microsoft.com/en-us/windows/win32/winsock/so-keepalive
-		*/
-		void keep_alive(int32_t idle, int32_t count, int32_t interval) noexcept;
+		void keep_alive(int32_t idle, int32_t count, int32_t interval, bool set = true) noexcept;
 
 		boost::asio::ip::tcp::endpoint endpoint() const;
 		boost::asio::ip::tcp::endpoint local_endpoint() const;

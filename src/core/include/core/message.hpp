@@ -12,7 +12,10 @@ enum class App{
 	echo,
 	serial,
 	monitor,
-	tcp_server
+	tcp_server,
+	tcp_client,
+	udp_client,
+	udp_server
 };
 
 enum class Type{

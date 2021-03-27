@@ -6,52 +6,6 @@
 namespace My_Async{
 namespace Listener{
 
-//template<bool SupportSSL, bool SupportPlain>
-//template<typename Session, typename Make_Func, typename ...Args>
-//bool
-//Container<SupportSSL, SupportPlain>::
-//open(boost::asio::ip::tcp::endpoint const& ep,
-//					boost::system::error_code& ec,
-//					Make_Func make,
-//					Args ...args)
-//{
-//	if(is_open(ep))
-//	{
-//		ec = boost::system::errc::make_error_code(boost::system::errc::address_in_use);
-//		return false;
-//	}
-//
-//	if constexpr(!Session::use_ssl)
-//	{
-//		if constexpr(!SupportPlain)
-//		{
-//			ec = boost::system::errc::make_error_code(boost::system::errc::wrong_protocol_type);
-//			return false;
-//		} else {
-//			auto server = make(ioc_, ep, ec, args...);
-//			if(ec)
-//				return false;
-//
-//			servers_[ep] = std::make_shared<Listener_Concept>(server);
-//		}
-//	} else {
-//		if constexpr(!SupportSSL)
-//		{
-//			ec = boost::system::errc::make_error_code(boost::system::errc::wrong_protocol_type);
-//			return false;
-//		} else {
-//#if USE_SSL == 1
-//			auto server = make(ioc_, ctx, ep, ec, args...);
-//			if(ec)
-//				return false;
-//
-//			servers_[ep] = std::make_shared<Listener_Concept>(server);
-//#endif
-//		}
-//	}
-//	return true;
-//}
-
 template<bool SupportSSL, bool SupportPlain>
 template<typename Session, typename Make_Func, typename ...Args>
 bool

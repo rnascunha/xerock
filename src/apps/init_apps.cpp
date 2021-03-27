@@ -19,6 +19,18 @@
 #include "tcp_server/tcp_server.hpp"
 #endif
 
+#if USE_APP_TCP_CLIENT > 0 && USE_APP_TCP_CLIENT <= 3
+#include "tcp_client/tcp_client.hpp"
+#endif
+
+#if USE_APP_UDP_CLIENT == 1
+#include "udp_client/udp_client.hpp"
+#endif
+
+#if USE_APP_UDP_SERVER == 1
+#include "udp_server/udp_server.hpp"
+#endif
+
 namespace Apps{
 
 #if USE_SSL == 1
@@ -69,6 +81,43 @@ void init_apps(boost::asio::io_context& ioc)
 	);
 
 #endif /* USE_APP_TCP_SERVER > 0 && USE_APP_TCP_SERVER <= 3 */
+
+#if USE_APP_TCP_CLIENT > 0 && USE_APP_TCP_CLIENT <= 3
+#if USE_APP_TCP_CLIENT == 1
+    auto tcp_clients = std::make_shared<Apps::TCP_Client::TCP_Container>(ioc);
+#elif USE_APP_TCP_SERVER == 2 || USE_APP_TCP_SERVER == 3
+    auto tcp_clients = std::make_shared<Apps::TCP_Client::TCP_Container>(ioc, ctx);
+#endif /* USE_SSL == 1 */
+//	Apps::TCP_Client::init_cb(tcp_clients);
+	Core::Dispatcher::register_app(Core::App{Message::App::tcp_client, Apps::TCP_Client::name,
+					std::bind(Apps::TCP_Client::tpc_client_app,
+							std::placeholders::_1,
+							std::placeholders::_2,
+							std::placeholders::_3,
+							tcp_clients)}
+	);
+#endif /* USE_APP_TCP_SERVER > 0 && USE_APP_TCP_SERVER <= 3 */
+
+#if USE_APP_UDP_CLIENT == 1
+	Core::Dispatcher::register_app(Core::App{Message::App::udp_client, Apps::UDP_Client::name,
+					std::bind(Apps::UDP_Client::udp_client_app,
+							std::placeholders::_1,
+							std::placeholders::_2,
+							std::placeholders::_3,
+							std::make_shared<Apps::UDP_Client::UDP_Container>(ioc))}
+	);
+#endif /* USE_APP_UDP_CLIENT == 1 */
+
+#if USE_APP_UDP_SERVER == 1
+	Core::Dispatcher::register_app(Core::App{Message::App::udp_server, Apps::UDP_Server::name,
+					std::bind(Apps::UDP_Server::udp_server_app,
+							std::placeholders::_1,
+							std::placeholders::_2,
+							std::placeholders::_3,
+							std::make_shared<Apps::UDP_Server::Container>(ioc))}
+	);
+#endif /* USE_APP_UDP_SERVER == 1 */
+
 }
 
 }//Apps
