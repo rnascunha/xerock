@@ -2,20 +2,15 @@
 
 **Xerock** is a set o tools (Linux and Windows) to assist the development of low level communication between devices. The plataform aims different kinds of links, since physical connection (e.g. serial) to network protocols (e.g. TCP, WebSocket).
 
-The application is divided into *daemon* (this project) and *interface* ([daemon project](https://github.com/rnascunha/xerock_web)). You can access the *interface* at [this address](https://rnascunha.github.io/xerock/).
+The application is divided into *daemon* (this project) and *interface* ([interface project](https://github.com/rnascunha/xerock_web)). You can access the *interface* at [this address](https://rnascunha.github.io/xerock/).
 
 The *daemon* is where the connections/protocols will be running, and at *interface* you can access the *daemons* (as many as you need) to interact/viasualize the data. All people connected to the same *daemon* will receive the same data traffic.
 
 The software is composed by:
-
 * *Apps*: applications provide the resources that the system will work on top. For example, the *Serial App* connects to serial ports, *TCP Server App* open listening tcp sockets, and so on.
-
 * *Data* / *Views*: this module is all about visualization. The default view shows all data, from all the *apps*, from all *daemons*, and all metadata involved (timestamp, app, size, data...). There is also custom views, where data can be filterd, parsed and displayed in different ways.
-
 * *Input* / *Commands*: here is how you send data to the *apps*. You can send data as **text**, **hexadecimal** or **binary**. Custom inputs, called *commads*, can be used to construct more complex data sets.
-
 * *Scripts*: scripts are used to automated some procedure. For example, echoing all data received from some socket, or bridging data received from a serial port to a TCP socket, or vice-versa.
-
 * *Tools*: tools are features to help develoment, but not tightly related with others. Some examples are data conversion or open saved data.
 
 All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scripts* and *Tools* will be added in the future.
@@ -25,11 +20,8 @@ All features above are extensible, i.e., new *Apps*, *Views* , *Commands*, *Scri
 <img align="right" src="docs/img/xerock_diagram_short.png"> 
 
 * Users access the [interface](https://rnascunha.github.io/xerock/);
-
 * At interface, users can connect to any the *daemons* they need;
-
 * Users can send commands to *daemons* to open serial ports, open sockets, or any other resources the *daemon* provide. Different *daemons* require different type of connections (plain or SSL), and can be compiled with different sets of  _apps_ ;
-
 * All data is shared by the users that are connected to the same *daemon* .
 
 Other possibility, that doesn't require a *daemon*, is the **local apps**. **Local apps** are applications that use some API supplied by the browser. As everything runs locally, the data isn't shared, but all features described above (*Views* , *Commands*, *Scripts*) are still valid.
@@ -39,23 +31,15 @@ Other possibility, that doesn't require a *daemon*, is the **local apps**. **Loc
 ### Dependecies
 
 To build and compile **Xerock**, you will need:
-
 * [git](https://git-scm.com/) - Download code and library dependecies;
-
 * [cmake](https://cmake.org/) / Make - Build and compile;
-
 * C++ compiler - C++ compiler with support C++17 standard;
 
 **Xerock** depends on the following third party libraries:
-
 * [Argh!](https://github.com/adishavit/argh) - Parse command line arguments;
-
 * [Boost/Asio](https://github.com/boostorg/asio/) - Asyncronous model and serial/sockets implementation;
-
 * [Boost/Beast](https://github.com/boostorg/beast) - WebSocket implementation on top of Asio;
-
 * [RapidJSON](https://github.com/Tencent/rapidjson) - JSON parser and generator for C++;
-
 * (Optional) [OpenSSL](https://www.openssl.org/) - SSL implementation. Only required if SSL support is needed.
 
 ### Quick start
@@ -98,7 +82,6 @@ $ ./b2 headers
 $ cd ../..
 
 ```
-
 Build and compile:
 
 ```
@@ -164,7 +147,6 @@ $ ./xerock 8080
 #Start to listen only to the localhost, at port 8080, with 5 threads
 $ ./xerock --threads 5 --addr 127.0.0.1 8080
 ```
-
 If you compiled WITH SSL support, it's madatory to provide a certificate and a private key:
 
 ```
@@ -237,15 +219,10 @@ To build and compile with SSL:
 #At build directory
 $ cmake -DWITH_SSL=1 ..
 ```
-
 A overview of the options:
-
 * `-DWITH_SSL=<0|1>`: enable (`1`)/disable (`0`, default) SSL support;
-
 *  `-DAPP_<app_name>=<0|1>`: enable (`1`)/disable (`0`) compilation of `<app_name>` (*TCP Server App* and *TCP Client App* have some more options). By default all *apps* will be enabled, if supported by the OS;
-
 * `-D<library_name>_PATH=<path>`: point to a specific library path (other than the default). You can point to a diferent `<path>` if you already installed the library at your system (e.g. Boost), or if **cmake** couldn't find **OpenSSL** directory;  
-
 * `-DCONFIG_KEEPALIVE_OLD=<0|1>`: this just for Windows OS (ignored at Linux). It will force the use of a specific implementation of the socket keepalive (here called *old* and *new*). By default MSVC will use the *new* (`0`) implementation, otherwise will use the *old* (`1`). If you have any problem compiling at Windows with **TCP_KEEP**-like errors, change the behavior setting this flag (and let me know, please).
 
 #### Build tests
@@ -260,7 +237,6 @@ Debian 10|gcc 8.3.0
 
 > :warning: This build was tested at Windows and Linux system. But not exhaustly tested. Any errors at your plataform, just let me know.
  
-
 ## Applications
 
 _Apps_  are the real deal. They are the ones that provide the resources to explore. **Xerock** was developed considering that new  _apps_  will be added in the future (propably at need of the author). Stay tuned! By now, this is what we have.
@@ -268,11 +244,8 @@ _Apps_  are the real deal. They are the ones that provide the resources to explo
 ### Main
 
 This is a internal *app*, mandatory and can't be disabled at build. It will notify the interface:
-
 * Your UID (user ID). Just a number identification. Any message a user send will be indetified by their UID;
-
 * _Apps_  compiled;
-
 * Number of users connected to the  _daemon_ .
 
 ### Echo
@@ -280,11 +253,8 @@ This is a internal *app*, mandatory and can't be disabled at build. It will noti
 Build options: `-DAPP_ECHO=1`.
 
 *Echo App* is the simplest *app* possible. As you can imagine, it will echo every message it receives. It was widely used at the development. Some other functions can be:
-
 * Test if the *daemon* is working;
-
 * Talk to other users connected at same *daemon*;
-
 * Give some context to the shared data (if you or someonelse analyze later).
 
 ### Serial
@@ -371,5 +341,4 @@ Build options: `-DAPP_UDP_SERVER=1`.
 ## Troubleshoot
 
 * If you try to build with flag `-DAPP_MONITOR=1` at Windows it will fail. *Monitor App* is not supported at Windows (yet?). Just don't explicity use this flag at Window and the build will just ignore it.
-
 * At Windows, if you have any problems at compilations with errors describing *tcp_keepalive*-like **not found**, try to use the `-DCONFIG_KEEPALIVE_OLD=<0|1>` (well, just try both... not at the same time ;-) ). More about keep alive [here](https://github.com/rnascunha/xerock/wiki/Keep-Alive).

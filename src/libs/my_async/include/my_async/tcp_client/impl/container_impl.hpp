@@ -38,7 +38,7 @@ open(boost::asio::ip::tcp::endpoint const& ep,
 			return;
 		} else {
 			auto client = std::make_shared<Client>(ioc_, std::forward<Args>(args)...);
-			client->open(ep, [&, client, cb](std::shared_ptr<Client> client, const boost::system::error_code& ec){
+			client->open(ep, [&, cb](std::shared_ptr<Client> client, const boost::system::error_code& ec){
 				if(!ec)
 					clients_[client->local_endpoint()] = std::make_shared<Client_Concept>(client);
 
